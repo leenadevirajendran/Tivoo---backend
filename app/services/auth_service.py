@@ -201,16 +201,21 @@ class AuthService:
         otp_record, raw_code = self._create_otp_record(
             db, channel="email", target=email, purpose=payload.purpose, user=user
         )
+        delivered = False
         try:
-            email_service.send_otp_email(email, raw_code, payload.purpose)
-        except Exception:
-            db.rollback()
-            raise
+            delivered = email_service.send_otp_email(email, raw_code, payload.purpose)
+        except Exception as exc:
+            print(f"[Warning] Failed to dispatch verification OTP: {exc}", flush=True)
 
         db.commit()
-        include_debug_code = (not settings.mail_app_password) or settings.app_debug
+        include_debug_code = (not delivered) or (not settings.mail_app_password) or settings.app_debug
+        message = (
+            f"OTP sent to {email}"
+            if delivered
+            else f"Verification code generated: {raw_code} (Cloud host blocked SMTP port)"
+        )
         return OtpDispatchResponse(
-            message=f"OTP sent to {email} via {settings.mail_sender}",
+            message=message,
             channel="email",
             target=email,
             purpose=payload.purpose,

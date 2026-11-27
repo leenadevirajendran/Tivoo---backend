@@ -49,13 +49,15 @@ class Settings(BaseSettings):
     otp_max_attempts: int = Field(default=5, ge=1)
     otp_resend_cooldown_seconds: int = Field(default=45, ge=0)
 
-    # Email SMTP
+    # Email SMTP & HTTP Providers
     mail_sender: str = Field(default="")
     mail_sender_name: str = Field(default="Tivoo")
     mail_smtp_host: str = Field(default="smtp.gmail.com")
     mail_smtp_port: int = Field(default=587)
     mail_use_tls: bool = Field(default=True)
     mail_app_password: str = Field(default="")
+    resend_api_key: str = Field(default="")
+    brevo_api_key: str = Field(default="")
 
     # SMS OTP
     sms_provider: Literal["none", "twilio", "webhook"] = Field(default="none")

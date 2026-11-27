@@ -67,7 +67,17 @@ def health_check() -> dict[str, object]:
             "sender": settings.mail_sender,
             "smtpHost": settings.mail_smtp_host,
             "smtpPort": settings.mail_smtp_port,
-            "configured": bool(settings.mail_sender.strip() and settings.mail_app_password.strip()),
+            "configured": bool(
+                settings.resend_api_key.strip()
+                or settings.brevo_api_key.strip()
+                or (settings.mail_sender.strip() and settings.mail_app_password.strip())
+            ),
+            "provider": (
+                "resend" if settings.resend_api_key.strip()
+                else "brevo" if settings.brevo_api_key.strip()
+                else "smtp" if (settings.mail_sender.strip() and settings.mail_app_password.strip())
+                else "none"
+            ),
         },
         "liveStreaming": {
             "defaultProvider": settings.live_media_provider,
